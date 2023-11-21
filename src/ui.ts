@@ -32,10 +32,10 @@ if (elementContenidoJuego !== null && elementContenidoJuego !== undefined && ele
         divImagenes.id = `cartas_${i}`;
         divImagenes.setAttribute('data-indice-id', i.toString());
 
-        divImagenes.style.display = cartaDelListado.estaVuelta ? "flex" : "none";
+        divImagenes.style.display = !cartaDelListado.estaVuelta ? "flex" : "none";
 
         const img = document.createElement('img');
-        img.src = cartaDelListado.imagen;
+        img.src = "";
         img.alt = "";
         img.className = "imagen";
         img.id = `imagen_${i}`;
@@ -72,7 +72,7 @@ const voltearImagen = (targetElement: HTMLElement, idElemento: string) => {
         const indiceImagen = Number(targetElement.getAttribute('data-indice-id'));
         if (!isNaN(indiceImagen)) {
             const carta = tablero.cartas[indiceImagen];
-            
+            console.log(carta);
             if (carta && carta.estaVuelta) {
                 elementImagen.src = carta.imagen;
                 elementImagen.style.visibility = "visible";
@@ -124,6 +124,7 @@ const voltearImagenes = (indiceA: number, indiceB: number) => {
 };
 
 const handleImageClick = (event: Event) => {
+    console.log("funciona");
     if (event instanceof MouseEvent) {
         const targetElement = event.target;
         if (targetElement instanceof HTMLElement) {
