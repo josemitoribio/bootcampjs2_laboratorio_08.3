@@ -1,38 +1,28 @@
-import {Tablero, tablero } from "./modelo";
-import { voltearLaCarta, sePuedeVoltearLaCarta, sonPareja, parejaEncontrada, parejaNoEncontrada, iniciaPartida  } from "./motor";
+import {Tablero, tablero, intentosJuego, estadoInicial, } from "./modelo";
+import { voltearLaCarta, sePuedeVoltearLaCarta, sonPareja, parejaEncontrada, parejaNoEncontrada, iniciaPartida,
+contarIntento, reiniciarContador, esPartidaCompleta } from "./motor";
 
-document.addEventListener("DOMContentLoaded", () => {
+const botonEmpezarPartida = (intentos: number) => {
     const botonElement = document.getElementById("boton");
-    
     if (botonElement && botonElement instanceof HTMLButtonElement) {
         botonElement.addEventListener("click", () => {
         iniciaPartida(tablero);
-        reiniciarCartas();
+        reiniciarCartas(intentos);
+        reiniciarContador();
+        pintarIntentos(intentos);
     });
     }  else {
         console.error("No existe el botón con el id boton");
     };
-});
+};
 
-const reiniciarCartas = () => {
-    
-const elementContenidoJuego = document.getElementById("contenidoJuego");
-if (elementContenidoJuego !== null && elementContenidoJuego !== undefined && elementContenidoJuego instanceof HTMLDivElement) {
-    elementContenidoJuego.innerHTML = "";
-    } else {
-    console.error("No se ha encontrao el div con el id contenidoJuego");
-    };
-
+const pintarCartas = (intentos: number) => {
     for (let i = 0; i < tablero.cartas.length; i++) {
         
         const divImagenes = document.createElement("div");
-        const cartaDelListado = tablero.cartas[i];
-
         divImagenes.className = "cartas";
-        divImagenes.id = `cartas_${i}`;
+        divImagenes.id = `${i}`;
         divImagenes.setAttribute('data-indice-id', i.toString());
-
-        divImagenes.style.display = !cartaDelListado.estaVuelta ? "flex" : "none";
 
         const img = document.createElement('img');
         img.src = "";
@@ -41,99 +31,140 @@ if (elementContenidoJuego !== null && elementContenidoJuego !== undefined && ele
         img.id = `imagen_${i}`;
         img.setAttribute('data-indice-id', i.toString());
         
+        divImagenes.appendChild(img);
+
         const elementContenidoJuego = document.getElementById("contenidoJuego");
         if (elementContenidoJuego !== null && elementContenidoJuego !== undefined && elementContenidoJuego instanceof HTMLDivElement){
         elementContenidoJuego.appendChild(divImagenes);
         }
 
-        divImagenes.appendChild(img);
-        divImagenes.addEventListener('click', (event) => handleImageClick(event))
+        divImagenes.addEventListener('click', (event) => handleImageClick(event, intentos))
     }
 
-    
 };
+
+const reiniciarCartas = (intentos: number) => {
+    const elementContenidoJuego = document.getElementById("contenidoJuego");
+
+    if (elementContenidoJuego !== null && elementContenidoJuego !== undefined && elementContenidoJuego instanceof HTMLDivElement) {
+    elementContenidoJuego.innerHTML = "";
+    pintarCartas(intentos);
+    } else {
+    console.error("No se ha encontrao el div con el id contenidoJuego");
+    };
+};
+
+const pintarIntentos = (intentos : number) => {
+    const intentosElement = document.getElementById("intentos");
+    if (intentosElement !== null && intentosElement !== undefined && intentosElement instanceof HTMLElement){
+        intentosElement.innerHTML = `Nº de intentos: ${intentos}`;
+    } else {
+        console.error("No se ha encontrado el elemento con id intentos");
+    };
+};
+
+const pintarMensajes = (mensaje: string) => {
+    const mensajesPartidaElement = document.getElementById("mensajesPartida");
+    if (mensajesPartidaElement !== null && mensajesPartidaElement !== undefined && mensajesPartidaElement instanceof HTMLElement){
+        mensajesPartidaElement.textContent = mensaje;
+    } else {
+        console.error("No se ha encontrado el elemento con id mensajesPartida");
+    };
+}
+
+const partidaCompleta = (mensaje:string) => {
+    if (esPartidaCompleta(tablero)) {
+        tablero.estadoPartida = "PartidaCompleta";
+        mensaje = "Has ganadao la partida";
+    } 
+    
+    return pintarMensajes (mensaje);
+};
+
+const tarjetaYaVolteada = (mensaje: string) => {
+    if () {
+        mensaje = "Esta carta ya está volteada";
+    } else {
+        mensaje ="";
+    }
+}
 
 const voltearImagen = (targetElement: HTMLElement, idElemento: string) => {
     if (sePuedeVoltearLaCarta(tablero, Number(idElemento))) {
-        const elementImagen = targetElement.querySelector('img') as HTMLImageElement | null;
-        const divImagenes = targetElement as HTMLDivElement;
-
-        if (elementImagen) {
-            elementImagen.style.visibility = "hidden";
-        } else {
-            console.error("El elemento no es una imagen");
-            return;
-        }
-
-        divImagenes.style.display = tablero.cartas[Number(idElemento)].estaVuelta ? "flex" : "none";
-
         voltearLaCarta(tablero, Number(idElemento));
 
         const indiceImagen = Number(targetElement.getAttribute('data-indice-id'));
         if (!isNaN(indiceImagen)) {
             const carta = tablero.cartas[indiceImagen];
-            console.log(carta);
             if (carta && carta.estaVuelta) {
+                const elementImagen = targetElement.querySelector('img');
+                if (elementImagen !== null && elementImagen !== undefined && elementImagen instanceof HTMLImageElement) {
                 elementImagen.src = carta.imagen;
-                elementImagen.style.visibility = "visible";
+                }
             }
         }
     }
 };
 
-const procesarParejaCartas = () => {
-    if (tablero.indiceCartaVolteadaA !== undefined && tablero.indiceCartaVolteadaB !== undefined) {
-        if (sonPareja(tablero.indiceCartaVolteadaA, tablero.indiceCartaVolteadaB, tablero)) {
-            parejaEncontrada(tablero, tablero.indiceCartaVolteadaA, tablero.indiceCartaVolteadaB)
+let estado: intentosJuego = estadoInicial;
+
+const procesarParejaCartas = (indiceA: number, indiceB:number, intentos: number) => {
+    if (indiceA !== undefined && indiceB !== undefined) {
+        if (sonPareja(indiceA, indiceB, tablero)) {
+            parejaEncontrada(tablero, indiceA, indiceB);
+            partidaCompleta(mensaje);
         } else {
-            voltearImagenes(tablero.indiceCartaVolteadaA, tablero.indiceCartaVolteadaB);
-            parejaNoEncontrada(tablero, tablero.indiceCartaVolteadaA, tablero.indiceCartaVolteadaB)
+            voltearImagenes(indiceA, indiceB);
+            parejaNoEncontrada(tablero, indiceA, indiceB)
+            contarIntento(estado);
+            pintarIntentos(intentos);
         }
     } else {
         console.error("Alguno de los índices está indefinido")
     }
 };
 
-const validartarjeta = (tablero: Tablero, targetElement: HTMLElement, idElemento: string) => {
+const validarTarjeta = (tablero: Tablero, targetElement: HTMLElement, idElemento: string, intentos:number) => {
     if (!isNaN(Number(idElemento))) {
         voltearImagen(targetElement, idElemento);
-    
-        if (tablero.indiceCartaVolteadaA === undefined 
-        || tablero.indiceCartaVolteadaB === undefined) {
-        return;
+        const indiceA =  tablero.indiceCartaVolteadaA;
+        const indiceB = tablero.indiceCartaVolteadaB;
+        if (indiceA !== undefined && indiceB !== undefined) {
+        procesarParejaCartas(indiceA, indiceB, intentos,);
         }
-        procesarParejaCartas();
     };
-}
+};
+
+const ocultarElemento = (indice: number) => {
+    const elemento = document.getElementById(`imagen_${indice}`);
+    if (elemento !== null && elemento !== undefined && elemento  instanceof HTMLImageElement) {
+        elemento.src = ``;
+    } else {
+        console.error("El elemento con id `imagen_${indice}` no es un elemento HTMLImageElement");
+    }
+};
 
 const voltearImagenes = (indiceA: number, indiceB: number) => {
-
-    const ocultarElemento = (indice: number) => {
-        const elemento = document.getElementById(`imagen__${indice}`);
-        if (elemento !==null && elemento !==undefined && elemento  instanceof HTMLElement) {
-            elemento.classList.add('d-none');
-        } else {
-            console.error("No es un elemento html");
-        }
-    };
-
     setTimeout(() => {
         ocultarElemento(indiceA);
         ocultarElemento(indiceB);
     }, 500);
 };
 
-const handleImageClick = (event: Event) => {
-    console.log("funciona");
+const handleImageClick = (event: Event, intentos:number) => {
     if (event instanceof MouseEvent) {
         const targetElement = event.target;
         if (targetElement instanceof HTMLElement) {
             const idElemento = targetElement.id;
-            validartarjeta(tablero, targetElement, idElemento)
+            validarTarjeta(tablero, targetElement, idElemento, intentos)
         } else {
             console.error("No es un elemento html")
         }
     } else {
         console.error("No es un evento")
     }
-}
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    botonEmpezarPartida (0);
+});

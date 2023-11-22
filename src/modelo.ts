@@ -68,3 +68,11 @@ export interface Carta {
   });
   
   export let tablero: Tablero = crearTableroInicial();
+
+ export interface intentosJuego {
+    intentos: number;
+  }
+  
+export const estadoInicial: intentosJuego = {
+    intentos: 0,
+  };
