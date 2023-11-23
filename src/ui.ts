@@ -109,27 +109,30 @@ const juegoDesbloqueado = () => {
 }
 };
 
+const noSePuedeVoltearLaCarta = (idElemento: string) => {
+
+    if (idElemento.includes('imagen')) {
+        const mensaje = "Esta carta ya está volteada";
+        pintarMensajes(mensaje);
+    }
+};
+
 const voltearImagen = (targetElement: HTMLElement, idElemento: string) => {
-    console.log("estoy aquí");
-    console.log(sePuedeVoltearLaCarta(tablero, Number(idElemento))
-    && !tablero.cartas[Number(idElemento)].encontrada)
-    if (sePuedeVoltearLaCarta(tablero, Number(idElemento))
-        && !tablero.cartas[Number(idElemento)].encontrada) {
+    if (sePuedeVoltearLaCarta(tablero, Number(idElemento))) {
         voltearLaCarta(tablero, Number(idElemento));
 
-        const indiceImagen = Number(targetElement.getAttribute('data-indice-id'));
+        const indiceImagen = Number(idElemento);
         if (!isNaN(indiceImagen)) {
             const carta = tablero.cartas[indiceImagen];
             if (carta && carta.estaVuelta) {
                 const elementImagen = targetElement.querySelector('img');
                 if (elementImagen !== null && elementImagen !== undefined && elementImagen instanceof HTMLImageElement) {
-                elementImagen.src = carta.imagen;
+                    elementImagen.src = carta.imagen;
+                    elementImagen.style.transform = 'rotateY(180deg)';
+                    elementImagen.style.transition = 'all 0.5s linear'; 
                 }
             }
         }
-    } else {
-        const mensaje = "No se puede voltear la carta";
-        pintarMensajes(mensaje);
     }
 };
 
@@ -165,6 +168,8 @@ const ocultarElemento = (indice: number) => {
     const elemento = document.getElementById(`imagen_${indice}`);
     if (elemento !== null && elemento !== undefined && elemento  instanceof HTMLImageElement) {
         elemento.src = ``;
+        elemento.style.transform = ``;
+        elemento.style.transition = ``;
     } else {
         console.error("El elemento con id `imagen_${indice}` no es un elemento HTMLImageElement");
     }
@@ -179,11 +184,14 @@ const voltearImagenes = (indiceA: number, indiceB: number) => {
 
 const handleImageClick = (event: Event) => {
     if (event instanceof MouseEvent) {
+        borrarMensaje();
         const targetElement = event.target;
         if (targetElement instanceof HTMLElement) {
             const idElemento = targetElement.id;
+            noSePuedeVoltearLaCarta(idElemento);
             validarTarjeta(tablero, targetElement, idElemento)
         } else {
+            borrarMensaje();
             console.error("No es un elemento html")
         }
     } else {
