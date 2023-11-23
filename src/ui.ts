@@ -1,5 +1,5 @@
 import {Tablero, tablero, intentosJuego, setNumeroDeIntentos} from "./modelo";
-import { voltearLaCarta, cambiarEstadoAPartidaCompleta, sePuedeVoltearLaCarta, sonPareja, parejaEncontrada, parejaNoEncontrada, iniciaPartida, esPartidaCompleta } from "./motor";
+import { voltearLaCarta, superadosLosIntentos, cambiarEstadoAPartidaCompleta, sePuedeVoltearLaCarta, sonPareja, parejaEncontrada, parejaNoEncontrada, iniciaPartida, esPartidaCompleta, cambiarEstadoAPartidaPerdida } from "./motor";
 
 const botonEmpezarPartida = () => {
     const botonElement = document.getElementById("boton");
@@ -8,11 +8,18 @@ const botonEmpezarPartida = () => {
         iniciaPartida(tablero);
         reiniciarCartas();
         pintarIntentos();
+        borrarMensaje();
+        juegoDesbloqueado();
     });
     }  else {
         console.error("No existe el botón con el id boton");
     };
 };
+
+const borrarMensaje = () => {
+    const mensaje = "";
+    pintarMensajes(mensaje);
+}
 
 const pintarCartas = () => {
     for (let i = 0; i < tablero.cartas.length; i++) {
@@ -56,12 +63,11 @@ const reiniciarCartas = () => {
 const pintarIntentos = () => {
     const intentosElement = document.getElementById("intentos");
     if (intentosElement !== null && intentosElement !== undefined && intentosElement instanceof HTMLDivElement){
-        intentosElement.innerHTML = `Nº de intentos: ${intentosJuego.numeroDeIntentos}`;
+        intentosElement.innerHTML = `Nº de intentos:  ${intentosJuego.numeroDeIntentos} de 10`;
     } else {
         console.error("No se ha encontrado el elemento con id intentos");
     };
 };
-
 
 const pintarMensajes = (mensaje: string) => {
     const mensajesPartidaElement = document.getElementById("mensajesPartida");
@@ -70,7 +76,7 @@ const pintarMensajes = (mensaje: string) => {
     } else {
         console.error("No se ha encontrado el elemento con id mensajesPartida");
     };
-}
+};
 
 const partidaCompleta = () => {
     if (esPartidaCompleta(tablero)) {
@@ -78,6 +84,29 @@ const partidaCompleta = () => {
         const mensaje = "Has ganadao la partida";
         pintarMensajes(mensaje);
     } 
+};
+
+const partidaTerminada = () => {
+    if (superadosLosIntentos()) {
+        cambiarEstadoAPartidaPerdida(tablero);
+        const mensaje = "Has superado el número de intentos. Comienza la partida";
+        pintarMensajes(mensaje);
+        juegoBloqueado();
+    } 
+};
+
+const juegoBloqueado = () => {
+    const elementJuego = document.getElementById("contenidoJuego");
+    if (elementJuego !== null && elementJuego !== undefined && elementJuego instanceof HTMLDivElement) {
+        elementJuego.style.pointerEvents = 'none';
+}
+};
+
+const juegoDesbloqueado = () => {
+    const elementJuego = document.getElementById("contenidoJuego");
+    if (elementJuego !== null && elementJuego !== undefined && elementJuego instanceof HTMLDivElement) {
+        elementJuego.style.pointerEvents = 'auto';
+}
 };
 
 const voltearImagen = (targetElement: HTMLElement, idElemento: string) => {
@@ -114,6 +143,7 @@ const procesarParejaCartas = (indiceA: number, indiceB:number) => {
             parejaNoEncontrada(tablero, indiceA, indiceB);
             setNumeroDeIntentos(++intentosJuego.numeroDeIntentos);
             pintarIntentos();
+            partidaTerminada();
         }
     } else {
         console.error("Alguno de los índices está indefinido")
@@ -128,7 +158,7 @@ const validarTarjeta = (tablero: Tablero, targetElement: HTMLElement, idElemento
         if (indiceA !== undefined && indiceB !== undefined) {
         procesarParejaCartas(indiceA, indiceB);
         }
-    };
+    }
 };
 
 const ocultarElemento = (indice: number) => {

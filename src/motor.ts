@@ -1,4 +1,4 @@
-import { Carta, Tablero,} from "./modelo";
+import { Carta, Tablero, intentosJuego, maximoDeIntentos,} from "./modelo";
 
 /*
 En el motor nos va a hacer falta un método para barajar cartas
@@ -104,8 +104,11 @@ export const iniciaPartida = (tablero: Tablero): void => {
     tablero.estadoPartida = "CeroCartasLevantadas";
 };
     
+export const superadosLosIntentos = () : boolean => 
+  intentosJuego.numeroDeIntentos >= maximoDeIntentos;
 
-
-
+export const cambiarEstadoAPartidaPerdida = (tablero: Tablero) => {
+    tablero.estadoPartida = "PartidaPerdida";
+  }
 
 

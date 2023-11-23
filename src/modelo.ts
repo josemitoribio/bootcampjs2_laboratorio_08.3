@@ -41,7 +41,6 @@ export interface Carta {
 
   export let cartas: Carta[] = crearColeccionDeCartasInicial(infoCartas);
   
-  
 
   /*
     Aquí definimos el tipo de estado de la partida, la idea es que cuando empiece la partida todas las cartas estén boca abajo y si se hacen click sobre ellas no se volteen.
@@ -53,7 +52,8 @@ export interface Carta {
     | "CeroCartasLevantadas"
     | "UnaCartaLevantada"
     | "DosCartasLevantadas"
-    | "PartidaCompleta";
+    | "PartidaCompleta"
+    | "PartidaPerdida";
   
   export interface Tablero {
     cartas: Carta[];
@@ -80,3 +80,5 @@ export const intentosJuego: IntentosJuego = {
 export const setNumeroDeIntentos = (numeroDeIntentos: number) => {
   intentosJuego.numeroDeIntentos = numeroDeIntentos;
 }
+
+export const maximoDeIntentos: number = 10; 
