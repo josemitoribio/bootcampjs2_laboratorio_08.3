@@ -69,10 +69,14 @@ export interface Carta {
   
   export let tablero: Tablero = crearTableroInicial();
 
- export interface intentosJuego {
-    intentos: number;
+interface IntentosJuego {
+    numeroDeIntentos: number;
   }
   
-export const estadoInicial: intentosJuego = {
-    intentos: 0,
+export const intentosJuego: IntentosJuego = {
+    numeroDeIntentos: 0,
   };
+
+export const setNumeroDeIntentos = (numeroDeIntentos: number) => {
+  intentosJuego.numeroDeIntentos = numeroDeIntentos;
+}

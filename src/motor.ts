@@ -1,4 +1,4 @@
-import { Carta, Tablero, intentosJuego, estadoInicial } from "./modelo";
+import { Carta, Tablero,} from "./modelo";
 
 /*
 En el motor nos va a hacer falta un método para barajar cartas
@@ -22,7 +22,7 @@ export const sePuedeVoltearLaCarta = (tablero: Tablero, indice: number ): boolea
         return true;
     }
     if (tablero.cartas.filter((carta) => carta.estaVuelta).length <= 1) {
-        return true;
+       return true;
     }
     return false;
   };
@@ -81,6 +81,9 @@ export const esPartidaCompleta = (tablero: Tablero): boolean => {
     return tablero.cartas.every((carta) => carta.encontrada);
   }
 
+export const cambiarEstadoAPartidaCompleta = (tablero: Tablero) => {
+  tablero.estadoPartida = "PartidaCompleta";
+}
   // Iniciar partida
 
 export const iniciaPartida = (tablero: Tablero): void => {
@@ -101,17 +104,6 @@ export const iniciaPartida = (tablero: Tablero): void => {
     tablero.estadoPartida = "CeroCartasLevantadas";
 };
     
-
-export const contarIntento = (estado: intentosJuego): intentosJuego => {
-  return {
-    ...estado,
-    intentos: estado.intentos + 1,
-  };
-};
-
-export const reiniciarContador = (): intentosJuego => {
-  return { ...estadoInicial };
-};
 
 
 
