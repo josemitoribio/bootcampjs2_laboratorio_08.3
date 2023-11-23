@@ -81,7 +81,7 @@ const pintarMensajes = (mensaje: string) => {
 const partidaCompleta = () => {
     if (esPartidaCompleta(tablero)) {
         cambiarEstadoAPartidaCompleta(tablero);
-        const mensaje = "Has ganadao la partida";
+        const mensaje = "¡Has ganado la partida! 🥳";
         pintarMensajes(mensaje);
     } 
 };
